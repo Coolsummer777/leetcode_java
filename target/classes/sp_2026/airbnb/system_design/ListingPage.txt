@@ -1,0 +1,20 @@
+Host Listings Page — Aggregation Optimization
+A host opens their dashboard and picks a date range; the page renders per-listing aggregates (nights booked, average price). With 100+ listings per host, the page becomes slow. Diagnose and redesign.
+
+Requirements
+Three tables: Listings, Reservations, Pricing.
+For a host with many listings and a user-picked date range, compute per-listing nights_booked and avg_price.
+Page latency target: sub-second.
+Notes
+Diagnose first. The naive query joins three large tables and aggregates per listing — fan-out from a single host's listings to thousands of reservations × pricing rows is the cost. Walk the interviewer through the bad plan before proposing a fix.
+Pre-aggregation. Maintain a daily roll-up table ListingStatsDaily(listing_id, date, nights_booked, gross_revenue, price_count). Page query becomes a single range aggregation per listing, served from a 100x smaller table.
+Refresh strategy. Two options: streaming (Kafka → materialized view on reservation events), or batch (nightly job over the previous day). Pick batch for "yesterday and earlier" + a smaller per-listing live view for "today".
+Index choices. Composite index (host_id, listing_id, date) on ListingStatsDaily; partition by month for cheap pruning.
+Caching. Cache the rendered dashboard per (host_id, date_range) for 60 seconds; explicitly invalidate on the host's own booking events.
+Read-path simplification. Page can fetch all listings in one round-trip via WHERE listing_id IN (...) rather than 100 individual queries.
+The candidate is expected to talk through the SQL plan, not just slap a cache in front. The interviewer pushes on schema choices.
+Preparation
+Pre-write the bad SQL and the optimized SQL side-by-side; be ready to explain the plan delta.
+Sketch the roll-up schema in under 3 minutes.
+Drill the streaming-vs-batch trade-off conversation — both answers are defensible; commit to one and explain why.
+Be ready for the deep-dive: "what if a reservation is canceled after roll-up?" Answer: emit a delta event; the streaming consumer subtracts from the roll-up.

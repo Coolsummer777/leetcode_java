@@ -1,0 +1,20 @@
+Experience / Project Deep-Dive Round
+A 60-minute project deep-dive (sometimes runs to 90 minutes if both sides are engaged). One project is picked from the resume and explored in detail. The graded signals are scope, decision quality, ownership, and the ability to compress a complex project into a clear narrative.
+
+Requirements
+Pre-round, the candidate is asked to send a list of 2–3 projects with one-paragraph summaries; the interviewer picks one.
+The session covers: project background, the candidate's specific contribution, decisions made, alternatives considered, measurable outcomes, what they would do differently.
+Even resume one-liners can become deep-dive targets — every project on the resume should be defensible.
+Notes
+Most consistent feedback theme across candidates who failed this round: the project was complex but the candidate could not compress the story. Aim for 20-minute primary narrative + 25-minute back-and-forth; if a single project consumes the full hour, the interviewer scores it as poor communication.
+Scope is the senior signal. A deep, well-told story about a 3-person quarter-long project still loses to a clear narrative about a 10-person multi-quarter program where you owned a meaningful slice.
+The interviewer's role frames the questioning: if they are an engineering manager, lean product / impact; if a staff engineer, lean technical trade-offs; if a director, lean cross-functional influence.
+Some interviewers have a personal background closer to the candidate's domain than expected (an iOS expert grading a backend candidate, for instance); read the interviewer's intro carefully and calibrate.
+Common follow-up beats: how did you identify the root cause? what was the disagreement that almost derailed the project? what would you change? what was the measurable outcome?
+The candidate is expected to bring a 1-slide diagram or whiteboard sketch.
+Preparation
+Pick 3 projects that span technical depth, cross-team scope, and ambiguous-problem-solving; pre-write one-paragraph summaries for each.
+Run a 20-minute timed dry run on each project; cut to the essentials. If the dry run runs long, the live one will run longer.
+For every resume bullet, write 3 follow-up questions you would ask if you were the interviewer; rehearse the answers.
+Pre-script answers to: "what was the root cause analysis", "who disagreed with you and how did you resolve it", "what was the quantitative impact", "what would you do differently".
+Read the interviewer's LinkedIn the day before; calibrate tech-depth vs product-impact framing accordingly.

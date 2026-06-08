@@ -1,0 +1,30 @@
+Home Page — Search + Availability + Ranking
+Design the backend powering the Airbnb home page: search, availability filtering, ranking with ML integration. Senior / staff version of the booking-system prompt with heavier emphasis on the recommendation layer.
+
+Requirements
+Functional
+Free-text + filter search (location, dates, guests, price band, amenities).
+Personalized ranking using user features + listing features.
+Availability filter must respect the requested date range.
+Latency target: sub-second p95.
+Non-functional
+Tens of millions of listings; hundreds of millions of users.
+Read-heavy; thousands of QPS at peak.
+Tolerate seconds-of-staleness on listing edits; minutes-of-staleness on ranking signals.
+Notes
+Indexing layer. Geohash + date-bucketed inverted index on top of Elasticsearch / a custom shard layout. Listings are sharded by geohash prefix so a city-scope query hits a small fan-out.
+Availability filter. Maintain a per-listing availability_bitmap keyed by date; intersect with the requested range at query time. For large date ranges, push the filter into the index via a daily indexed boolean.
+Ranking pipeline.
+L0 retrieval: index + filter → candidate set of ~1000 listings.
+L1 light ranking: two-tower model (user tower + listing tower) producing a score in milliseconds.
+L2 deep ranking: GBDT / MLP on the top 100 with richer features (recent searches, price elasticity, host quality).
+Feature store. Online user features (last-N searches) pulled from a low-latency store (DynamoDB / Redis); offline listing features (price embedding, conversion rate) refreshed daily.
+Cache. Cache the L0 candidate set per (geohash_prefix, date_bucket, filter_hash) for 60s; ranking is per-user and not cached.
+Cold start. New listings get a small constant boost; new users get popularity-based ranking until they have 3+ interactions.
+The senior signal is the ML-integration depth — the interviewer expects the candidate to articulate where the model is called, how features are joined, and how online vs offline features are reconciled.
+Preparation
+Sketch the four-stage funnel (filter → retrieve → light rank → deep rank) cold in under 5 minutes.
+Drill the two-tower trade-off: low latency, no cross-features; deep model picks up the slack.
+Pre-script the feature-store conversation: which features live online, which offline, how staleness is bounded.
+Be ready for the cold-start follow-up — it is the most common deep-dive.
+Pair-prep with the booking-system prompt and the MLE ranking prompt; the same architecture surfaces in multiple loops.

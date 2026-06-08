@@ -1,0 +1,29 @@
+Distributed Key-Value Store Design
+Design a horizontally-scalable distributed key-value store supporting `get` / `set` / `delete` with configurable TTL, high availability, and low-latency reads. Appears as both a coding-style 'implement a KV store' prompt and a full SD round emphasizing CAP, consistent hashing, and replication.
+
+
+Requirements
+Functional
+set(key, value, ttl?), get(key), delete(key).
+TTL-based eviction; LRU as a secondary eviction policy when memory is full.
+Configurable replication factor.
+Non-functional
+p99 latency under ~10ms for get.
+100k+ requests / second per cluster, 1 TB+ aggregate data.
+High availability — survive single-node and single-AZ failure.
+Eventual consistency is acceptable; clarify whether read-your-writes is required.
+Notes
+Partitioning. Consistent hashing on hash(key) with virtual nodes; rebalancing is incremental on membership change. This is the load-bearing choice — interviewers expect a precise sketch of the ring and how a key maps to its primary + replicas.
+Replication. N replicas per key, written via quorum (W + R > N for read-your-writes). Defaults like N=3, W=2, R=2 are well-trodden; explain the trade-off vs N=3, W=1, R=1 (AP-leaning).
+CAP positioning. Default AP (Dynamo-style) — accept divergent writes, reconcile via vector clocks or last-writer-wins with a sync clock. CP variants (Spanner-style) trade availability for linearizability.
+Membership. Gossip protocol (SWIM or a variant) for failure detection; epoch counters to avoid flapping.
+Hot key handling. Detect with sampled request counts; mitigate by replicating hot keys to additional nodes, or by adding a thin in-memory tier in front (request coalescing).
+Write path. In-memory write to memtable + WAL append; periodic flush to SSTable on disk if durability is required. For pure in-memory cache variants, skip the WAL and rely on replication for durability.
+TTL eviction. Lazy on read + background sweep on hash-bucket batches; do not scan the entire keyspace.
+The Airbnb prompt is sometimes asked as a 45-minute coding-style round ("implement a single-process KV store with TTL and LRU") rather than the full SD round. In that variant, focus on a clean Map + DoublyLinkedList + ExpiryHeap implementation with O(1) get / set and correct eviction order.
+Preparation
+Diagram the consistent-hash ring, a single key's primary + 2 replica placement, and the quorum read / write paths on paper in under 5 minutes.
+Implement a single-process KV with O(1) get / set, LRU, and TTL in Python; cover with at least 5 tests including TTL expiry under concurrent reads.
+Be able to justify the quorum choice for read-your-writes vs strict eventual consistency.
+Prepare a 1-minute pitch on hot-key mitigation (replication boost, request coalescing, client-side caching) — frequently a deep-dive prompt.
+Practice describing the failure-recovery flow: node fails → gossip detects → coordinator re-routes → hinted handoff → eventual repair.

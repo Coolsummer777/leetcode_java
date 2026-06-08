@@ -1,0 +1,23 @@
+Hiring Manager Screen
+A 45-minute conversation with the hiring manager, scheduled between the tech screen and the onsite (sometimes also as a team-match gate after onsite). Centered on background fit, role expectations, and the candidate's questions.
+
+Requirements
+45-minute video call with the prospective manager.
+The manager walks the candidate through the role, the team, and the current roadmap.
+The candidate is expected to:
+Walk through their background in 5–10 minutes (resume highlights, not a full deep-dive).
+Discuss two or three projects at the elevator-pitch level.
+Ask 3–5 substantive questions about the team, scope, and growth path.
+The output of this round is a binary fit signal for the team-match pool.
+Notes
+Several candidates report being ghosted for weeks after this round even when the conversation felt strong — the round is gating, not auto-advancing.
+"More suitable candidate already in the pipeline" is a common reject reason; the round implicitly weighs background-team fit against the active req's specific needs.
+The candidate's questions matter at least as much as the answers. Generic ("what's the team culture") underperforms specific ("how is the team thinking about headcount in the post-AI-tooling era").
+A strong question set covers: org & team structure, recent achievement, biggest open problems, role scope, internal tooling, growth trajectory from senior to staff.
+The manager may pre-fail a candidate here if they sense the experience scope is below what the req demands — this is the round most likely to surface a downlevel offer.
+Preparation
+Pre-write a 5-minute background pitch and a 30-second version; rehearse both.
+Build a curated question bank organized by theme (org / track record / role / growth / tooling / industry trends). Carry 10–12 questions and pick the 4–5 that fit the manager's intro.
+Research the manager's LinkedIn: tenure, prior orgs, public talks. Mention a specific shared interest if it lands naturally; do not force it.
+Pre-script answers to: "why are you looking" and "what would make this role compelling for you".
+Treat the round as a two-way evaluation; calibration drift toward over-deference reads as low-conviction.

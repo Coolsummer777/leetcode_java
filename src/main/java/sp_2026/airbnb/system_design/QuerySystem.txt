@@ -1,0 +1,23 @@
+Query System — Time + Geo Filtered User Activity
+Design a query system that lets internal users look up an end-user's searches and bookings, filtered by time window and geographic region. Read-heavy, batch-tolerant freshness, large catalog.
+
+Requirements
+Functional
+Query API: (user_id, start_ts, end_ts, geo_bbox) → list of search + booking events.
+Aggregations by region and time bucket (count, sum amount).
+Non-functional
+Tens of TB of historical data.
+Query latency < 1s for the typical (single user, week-window, country-sized region) query; multi-second is acceptable for analytics-style sweeps.
+Eventual consistency on ingest is fine — staleness up to ~5 minutes.
+Notes
+Ingest path. Events flow through Kafka → ETL → columnar warehouse (BigQuery / Snowflake) for analytics, and into an inverted-index / time-series store (Elasticsearch / Clickhouse) for the interactive path.
+Geo indexing. Geohash the event lat/long at ingest time (prefix length 5–7 hits typical metro / city radii); store as both a geohash string and the raw lat/long. Range query by geohash prefix + lat/long bounding box.
+Time partitioning. Daily or hourly partitions by event date; queries prune by partition first, then by geohash, then by user.
+User-first vs region-first. If most queries are user-scoped, partition by user_id (cheap user reads, expensive region scans). If most are region-scoped, partition by geohash. Hybrid: dual indexes with synchronous writes.
+Aggregation cache. Pre-aggregate count(*) and sum(amount) by (region, hour) into a separate roll-up table; serve dashboard queries from the roll-up instead of the raw events.
+The thread's prompt is thin on functional requirements; the candidate is expected to ask the clarification questions before designing.
+Preparation
+Practice the clarification opener: query patterns? user-scoped vs region-scoped? interactive vs batch?
+Sketch the dual-index layout (user-partitioned + geohash-partitioned) in under 4 minutes.
+Pre-write the geohash trade-off conversation: prefix vs quadtree vs R-tree; pick geohash for the simple-storage win.
+Drill the daily-partition pruning argument — usually wins the latency budget.

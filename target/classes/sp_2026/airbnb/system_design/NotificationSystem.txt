@@ -1,0 +1,27 @@
+Notification System (Event + Batch)
+Design Airbnb's notification system. Supports two pipelines: event-triggered single notifications (booking confirmation, check-in lock code) and bulk batch sends (promotional pushes to host cohorts). Delivery channels include email, SMS, push, and X / Twitter.
+
+Requirements
+Functional
+Event pipeline: subscribe to upstream events (booking placed, check-in date reached) and emit a notification to the affected user.
+Batch pipeline: scheduled or on-demand mass sends to a cohort (e.g. promotional push to potential hosts).
+Multi-channel: email, SMS, mobile push, third-party social.
+Per-user channel preferences and global quiet hours.
+Templating with localization.
+Non-functional
+Tens of millions of notifications per day, with bursty event traffic.
+At-least-once delivery with idempotency; user must not receive the same booking confirmation twice.
+Configurable per-channel retry and backoff.
+Notes
+Two-pipeline split. Event-triggered work flows through a low-latency path (Kafka → notification-router → channel workers). Batch work flows through a separate job-scheduler path (Airflow / cron → batch-fan-out service → channel workers) so a 10M-row batch cannot starve a booking confirmation.
+Channel abstraction. A ChannelAdapter interface per provider (SendGrid, Twilio, APNs, FCM); workers pull from per-channel queues so that an SMS-provider outage does not block email sends.
+Templating. Templates stored as versioned rows; render server-side with the user's locale; cache the compiled template.
+Preference + quiet hours. A single UserPreferences lookup at the router stage; respect global frequency caps to avoid spamming.
+Idempotency. Each notification carries a stable notification_id derived from (event_id, user_id, channel); the worker writes to a deduplication store (Redis with TTL) before calling the provider.
+Backpressure. Per-channel rate limits (e.g. 100 SMS / sec per provider account); use a token-bucket per provider with overflow into a delay queue.
+Observability. Per-notification status (queued, sent, delivered, bounced) with a 7-day audit log; bounces feed back into the preference store to disable bad channels.
+Preparation
+Sketch the two pipelines on one diagram; be explicit about what the batch path does that the event path does not (cohort expansion, throttling, sampling for A/B).
+Walk through the lock-code-on-check-in example end-to-end: scheduled job at check_in_date - 1h → enqueue event → router resolves channel preference → SMS worker → idempotent send → status callback.
+Practice the deep-dive on idempotency and at-least-once vs exactly-once.
+Pair-prepare with the group-chat design — both want the same fan-out and channel-adapter skeleton.

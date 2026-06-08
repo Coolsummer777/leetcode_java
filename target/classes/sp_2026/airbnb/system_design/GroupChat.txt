@@ -1,0 +1,36 @@
+Group Chat / Messaging System Design
+Design a group-chat / messaging product that supports 1:1 and group conversations, real-time delivery, offline message retention, and read receipts. Asked at both the phone-screen-SD slot and onsite system-design slot; the deep-dive direction shifts toward top-N hottest groups, fan-out trade-offs, and message storage schema.
+
+Requirements
+Functional
+Send and receive text messages in 1:1 and group conversations (group size up to ~100 members).
+Real-time delivery for online recipients, durable delivery for offline recipients.
+Persist messages for ~30 days (clarify retention with the interviewer).
+Read receipts and online / last-seen presence.
+Optional: media attachments (image / video) via blob storage.
+Non-functional
+Hundreds of millions of active users, tens of thousands of messages per second at peak.
+Sub-second end-to-end latency for online recipients.
+High availability for read / write; eventual consistency is acceptable for read receipts and presence.
+Scoped out (confirm)
+Voice / video calls, payments, business-account features, end-to-end encryption (some interviewers do ask about E2EE as a probing question).
+Notes
+Connection layer. Persistent WebSocket over TLS, fronted by an L4 load balancer. A single chat server holds on the order of 1–2M concurrent connections; use consistent hashing on userId to map users to servers.
+Routing. A pub/sub layer (Redis pub/sub or Kafka) routes published messages to the chat server that holds the recipient's socket. Subscribe per-user for 1:1; for large groups, switch to per-chat channels once group size exceeds a threshold (commonly cited around 25 members) to avoid duplicate fan-out.
+Storage schema.
+Chat(chat_id PK, type, created_at) — one row per conversation.
+ChatParticipant((chat_id, user_id) composite key) + GSI (user_id → chat_ids) for "what chats am I in".
+Messages(chat_id, message_id, sender_id, body, created_at, ttl) — partition by chat_id, sort by message_id (snowflake or chat-local sequence). 30-day TTL.
+Inbox(user_id, message_id, ack_at) — per-recipient undelivered queue; deleted on client ACK. Critical for offline delivery.
+LastSeen(user_id, ts) — updated only on disconnect.
+Fan-out trade-off. Fan-out-on-write for chats with ≤ N members keeps reads cheap; fan-out-on-read (a single message row, recipients pull) wins for very large groups. The widely cited break-even is around N ≈ 25–50 participants.
+Top-N hot groups. When the interviewer pushes on the "hottest groups" follow-up, the answer is to (1) cache the chat metadata in Redis, (2) move very hot chats to a dedicated chat-channel pub/sub topic, (3) shard hot chats across multiple chat servers with sticky chat_id → server-list routing.
+Ordering. Use server-assigned timestamps (NTP-synced) plus a per-chat sequence number to detect missed messages; do not depend on client clocks.
+Reliability patterns. Heartbeats every 10–30s to detect dead sockets; sequence-number gap detection on the client to trigger a missed-message replay from the inbox; periodic background poll (30–60s) as a fallback for missed pub/sub events.
+The Airbnb variant of this question often pivots to schema-quality during the wrap-up — the interviewer will spend the last 10 minutes pulling on the data model rather than the network stack. Have the schema crisp.
+Preparation
+White-board the schema (Chat / ChatParticipant / Messages / Inbox / LastSeen) cold in under 5 minutes.
+Be able to articulate the per-user vs per-chat pub/sub trade-off in a single sentence and defend the chosen break-even.
+Practice the WebSocket connection-explosion math: 200M users × 1.5M / server ≈ 130 servers; argue when to scale to 200+ vs add another layer.
+Drill the offline-delivery flow: write to Messages → write to Inbox for each offline recipient → publish to pub/sub → ACK clears Inbox row.
+Pair this prompt with the booking / KV-store / notification design drills since one of these is usually picked from the same family.

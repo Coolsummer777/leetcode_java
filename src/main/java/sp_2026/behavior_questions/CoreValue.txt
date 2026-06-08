@@ -1,0 +1,29 @@
+Core Values Behavioral Round
+A 45-minute conversation with a calibrated culture-fit interviewer, scheduled after the technical loop. Centers on Airbnb's mission and the candidate's alignment with it. Less STAR-heavy than the Amazon LP loop; more reflective and biographical.
+
+Requirements
+Scheduled separately from the technical loop and often after a positive onsite outcome.
+Format is a conversational interview, not a STAR drill; the interviewer is calibrated on the company's culture rubric.
+Typical question themes:
+Why Airbnb specifically? (Mission, product affinity, travel-related personal story.)
+The biggest problem in the world and what you are doing about it.
+Travel experiences with Airbnb that left an impression.
+How you pick a place to stay; bad-experience recovery.
+Cross-cultural / cross-timezone collaboration moments.
+Senior engineers / mentors who shaped you.
+Risk-taking moments in life — career or personal.
+Going from writing code to owning a project — what was the hardest transition?
+Predicted obstacles or unknowns of working at Airbnb.
+Hobbies and personal projects come up; some candidates report 20 minutes covered all questions and the round ended early — early ending is not a negative signal.
+Notes
+The round is graded on authenticity and self-awareness, not on rehearsed corporate-speak. Generic answers ("I want to make impact") underperform specific ones ("the Cuba pop-up listing in 2018 changed how my family travels").
+Senior candidates report being asked to explain a values-driven decision they made at a previous role where the local-incentive answer would have been different.
+The mission-alignment cluster ("biggest problem in the world", "what's your cause") is a calibration probe; the interviewer is not looking for a specific answer, but for evidence of having thought about it.
+Quirky / fresh prompts come up; candidates have noted feeling refreshed by the round compared to AI-pattern BQ at other companies.
+Hiring committee uses the values round as a tiebreaker — strong technical + weak values is a common reject path.
+Preparation
+Pre-write 3 personal-story arcs that connect to Airbnb's mission: a travel experience that mattered, a project where you made a values-aligned choice, a person who shaped how you work.
+Read Airbnb's most recent founder letter or shareholder letter — phrasing aligned with current company narrative reads as preparation.
+Drill the "why Airbnb" answer to 90 seconds; cut anything that sounds generic.
+Have a one-paragraph answer ready for "biggest problem in the world" — pick something you genuinely care about, not what sounds noble.
+Practice with someone outside the industry; if they say your story feels stiff, rework it.

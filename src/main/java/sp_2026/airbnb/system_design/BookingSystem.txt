@@ -1,0 +1,27 @@
+Airbnb Booking System Design
+Design the core booking pipeline: search availability, hold a listing for a date range, complete payment, confirm reservation. Race conditions over the same listing-date pair are the central deep-dive.
+
+Requirements
+Functional
+Search listings by date range, location, guest count.
+Tentatively hold a listing on a date range for ~10 minutes during checkout.
+Confirm the booking once payment succeeds; release the hold otherwise.
+Cancel / refund.
+Non-functional
+Concurrent booking attempts on the same listing-date pair must produce exactly one confirmation.
+Search is read-heavy and cache-tolerant; booking is write-heavy and consistency-critical.
+Geographically distributed users; place reads near the user.
+Notes
+Two-tier consistency. Search reads from an eventually-consistent index (Elasticsearch); booking writes to the strongly-consistent inventory service.
+Inventory model. Per (listing_id, date), store an availability row. Booking is an atomic UPDATE WHERE row is AVAILABLE; the row count returned tells the caller whether the hold succeeded.
+Holds. Either a BookingHold(id, user_id, listing_id, dates, expires_at) table or a lease in Redis with TTL. Background sweeper releases expired holds.
+Payment idempotency. Payment integration uses an idempotency key derived from booking_id; retried payments must not double-charge.
+Search index. Geohash + date-bucketed inverted index; updated asynchronously off the inventory write log.
+Multi-day rollup. A booking spans multiple (listing, date) rows; wrap them in a transaction. If the underlying store does not support multi-row transactions, use a saga (acquire each row; release all on first failure).
+Hot listings. During flash-sale-style events (festival weekend), shard the inventory rows by listing across multiple hosts and use optimistic concurrency to absorb the contention burst.
+Closely related to the search-and-availability deep-dive that surfaces in higher-level (L6+) onsites.
+Preparation
+Sketch the inventory table + atomic update SQL cold; be ready to discuss the multi-day-row saga.
+Drill the payment idempotency conversation (idempotency_key = booking_id).
+Pre-script the hot-listing answer (sharding + optimistic concurrency).
+Pair-prep with the home-page search-and-availability prompt — both share the inventory and search infra.

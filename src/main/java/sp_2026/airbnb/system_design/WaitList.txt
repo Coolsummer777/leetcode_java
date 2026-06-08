@@ -1,0 +1,29 @@
+Waitlist System Design
+Design a waitlist subsystem: users join a waitlist for a listing; when capacity opens, the system notifies subscribers in priority order. Booking integration is assumed to exist; the design focus is API + schema + notification fan-out.
+
+Requirements
+Functional
+join_waitlist(user_id, listing_id, criteria) — add a user with date / price criteria.
+leave_waitlist(user_id, listing_id).
+When matching availability appears, notify all subscribers whose criteria match.
+Idempotent join (duplicate calls do not create multiple entries).
+Non-functional
+Tens of millions of waitlist rows across the catalog.
+Notification fan-out latency under a minute when availability changes.
+Cost-effective storage (these rows live for weeks, not seconds).
+Scoped out
+Actual booking flow (treated as an existing service).
+Payment integration.
+Notes
+Schema. Waitlist(id, user_id, listing_id, criteria_json, created_at, ttl) partitioned by listing_id so an availability change scans a single partition. Secondary index on user_id for the leave_waitlist operation.
+Event source. Hook into the listing availability stream (probably already exists for the booking service). On a new availability event for listing_id, fan out to the partition.
+Notification. Fan-out is a simple loop today; the candidate is expected to articulate when to switch to a separate batch notification job (when the matching set exceeds ~10k).
+Prioritization. Most interviewers do not push on FIFO vs priority — the simple answer (FIFO with a tie-break on created_at) is acceptable.
+De-duplication. (user_id, listing_id) is the natural key; reject duplicates at insert.
+The interviewer expects the candidate to drive the design conversation — multiple recent candidates noted explicit prompts of "is there anything else you want to cover?"
+Booking integration is the most-common deep-dive: when a notified user clicks book, race-condition handling falls to the booking service via optimistic concurrency on the listing's availability counter.
+Preparation
+Sketch the schema and the fan-out path in under 5 minutes.
+Pre-script the trade-off conversation: "fan-out-on-write at notification time vs. fan-out-on-read when the user opens the app" — pick the former for latency, the latter for cost.
+Be ready to add an offline-batch path for very large waitlists; this is the senior signal.
+Practice asking the interviewer to confirm the booking service exists — saves 5 minutes of unnecessary scope.
