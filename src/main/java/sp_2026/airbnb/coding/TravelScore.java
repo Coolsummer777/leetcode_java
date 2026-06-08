@@ -7,6 +7,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 
+
+Ski Path — Max Score on a Weighted DAG
+Given a weighted directed acyclic graph where edges carry a cost and nodes carry a reward, compute the maximum `sum(rewards) - sum(costs)` over any path from a fixed `START` to any `END` node.
+
+
+Requirements
+Input:
+travel: list of (from, cost, to) edges — e.g. [["start","3","A"], ["A","4","B"], ["B","5","END1"]].
+points: list of (node, reward) — e.g. [["A","5"], ["B","6"], ["END1","3"]].
+Output: the maximum score sum(node rewards on the chosen path) - sum(edge costs on the chosen path) from START to any node whose id starts with END.
+Multiple end nodes are possible; the start is fixed.
+Notes
+Topologically sort the DAG, then run a forward DP: best[v] = max(best[u] + reward[v] - cost(u, v)) for every incoming edge (u, v). Final answer: max(best[e]) over end nodes.
+If the graph might contain cycles, the problem becomes longest-path-on-a-general-graph (NP-hard) — clarify upfront that the graph is a DAG, otherwise propose Bellman-Ford with a cycle check.
+Reward applies to nodes, cost applies to edges — keep the two indexed separately. Many candidates fold them and lose the START-has-no-reward edge case.
+Follow-up: "what if multiple skiers traverse the graph simultaneously and share the cost / reward?" The standard answer is an M-skier DP over the product state (visited_node_bitmask, skier_id) for small M, or an LP relaxation for large M. This follow-up is the gate to the senior signal — pre-script your answer.
+The community version of this prompt has multiple wording variants; the algorithm is invariant.
+Preparation
+Implement topological sort + DP in under 25 minutes; verify on the cited 5-node example.
+Pre-write the multi-skier follow-up sketch (bitmask DP for small M, LP / min-cost-flow framing for large M).
+Hand-trace the example: start → A → B → END1 gives (5+6+3) - (3+4+5) = 14 - 12 = 2.
+Prepare a one-sentence answer for "what if reward depends on the order of visits" (it becomes a TSP variant).
+
+
+ */
+
+
 public class TravelScore {
 
     public int maxScore(String[][] travel, String[][] point) {

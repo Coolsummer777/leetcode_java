@@ -4,10 +4,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Scans a review and wraps each token occurrence as {@code [label]{original_text}}.
- * Matching is case-insensitive; output preserves the original casing. Multi-word tokens
- * may span flexible whitespace in the review. When several tokens match from the same
- * offset, the longest match wins.
+ *
+
+Review — Token Tagging / Replacement
+Given a review text and a map of tokens to labels, scan the text and wrap each occurrence of a token with `[label]{token}`. Case-insensitive matching; preserve the original casing in the output.
+
+Requirements
+Input:
+review: string.
+tokens: dict mapping token_str -> label, e.g. {"Airbnb": "business", "san francisco": "city"}.
+Output: the review with each occurrence of a token (case-insensitive) wrapped as [label]{original_text}.
+Multi-word tokens count as a single match across whitespace.
+Example:
+
+review = "I booked a house on Airbnb for my trip to San Francisco. It was a lovely experience."
+tokens = {"Airbnb": "business", "san francisco": "city"}
+=> "I booked a house on [business]{Airbnb} for my trip to [city]{San Francisco}. It was a lovely experience."
+Notes
+Naive for token in tokens: review = review.replace(...) fails on overlapping tokens (e.g. San Francisco Bay) and on case preservation.
+The clean approach is a trie of lowercased token strings, walked over the lowercased review with a parallel cursor in the original review; on match, emit the wrapper using the original-case slice.
+Aho-Corasick is the right complexity (O(|review| + total token length + #matches)) for a large token map.
+Overlap policy is the clarifying question that earns points: "if Airbnb and Airbnb Inc both match starting at the same offset, which wins?" Standard answer: longest match wins.
+Edge cases: token spanning punctuation, token at the start / end of the review, repeated tokens, tokens that are substrings of other tokens.
+Preparation
+Implement the trie-based scanner in under 25 minutes; handle case-insensitive match with original-case output.
+Drill the longest-match-wins tie-breaker explicitly — it is the most common follow-up.
+Pre-write the Aho-Corasick version if time allows; the interviewer asks for it when the token map is "tens of thousands".
+Pair-prep with text-justification-table and url-query-string-parser since the same string-processing slot rotates among them.
  */
 public final class ReviewLabeler {
 

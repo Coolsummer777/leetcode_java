@@ -5,6 +5,38 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+
+/**
+ * 
+Board Score — Connected Areas × Crowns
+Given an `R × C` board where each cell is a 2-character tile like `G2` (area type = `G`, crown count = `2`), compute the total board score. A connected region of same-type cells contributes `cell_count × total_crowns_in_region` to the score.
+
+Requirements
+Input: a 2-D array of strings such as
+[["G1","G2","W0","W1","S1"],
+ ["G2","G3","W0","W1","S1"],
+ ["S2","S3","S1","G1","S1"],
+ ["G1","G2","W0","W1","S1"],
+ ["G1","G2","W0","W1","S1"]]
+Each tile encodes <area_type><crown_count> (single letter + single digit; clarify whether crowns can exceed 9).
+A "region" is the maximal 4-connected component of cells sharing the same area_type.
+Region score = len(region) × sum(crown_count for cell in region).
+Return the sum of region scores over all regions.
+The interviewer asks the candidate to write their own test cases.
+Notes
+Standard flood-fill: iterate every cell; if not visited, BFS / DFS to enumerate the connected component, accumulating crown counts; multiply and add to total.
+Union-find is equally valid; BFS is shorter under time pressure.
+The score formula cells × crowns (not cells + crowns) is the rule most candidates misread on first pass — re-read the prompt before coding.
+Edge cases: regions of size 1, regions with zero crowns (still contribute cells × 0 = 0, no skip needed), out-of-bound neighbors, multi-character crown counts (clarify).
+Inspired by the board game Kingdomino; the algorithm generalizes to any "score by connected component" prompt.
+Preparation
+Implement BFS flood-fill on a 2-D grid in under 12 minutes.
+Write 3 hand-rolled test cases: empty board, single region covering the whole board, multiple regions with mixed crown counts.
+Be prepared for the rendering follow-up — sometimes the interviewer hands a malformed grid and asks the candidate to parse it from a string first.
+
+
+ */
+
 public class ConnectedAreas {
 
     public static void handle(){

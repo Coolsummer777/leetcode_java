@@ -8,6 +8,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 
+Key Store With Sum-Dependency Cascades
+Implement a key store supporting `set_value(k, v)`, `set_sum(k, [other_keys])`, and `get_value(k)`. Updating a base key cascades through all dependent sum keys. 
+
+Requirements
+set_value(key, value) — store an integer under key.
+set_sum(key, refs) — define key as the sum of the current values of refs (multiplicity matters: ["C", "C", "A"] means 2*C + A).
+get_value(key) — return the integer for key. If key was defined via set_sum, return the live computed sum.
+Updating any base key must propagate the new sum through every dependent.
+Example:
+
+set_value("A", 5)             # A = 5
+set_value("B", 10)            # B = 10
+set_sum("C", ["A", "B"])      # C = 15
+set_sum("D", ["C", "C", "A"]) # D = 2*15 + 5 = 35
+get_value("C") -> 15
+get_value("D") -> 35
+set_value("A", 100)           # cascade: C = 110, D = 320
+get_value("D") -> 320
+Follow-up: "If get_value is rare and set_value is frequent, optimize set_value." → swap the eager-propagation model for lazy evaluation with a dependency graph that recomputes on read.
+
+Notes
+Two natural designs:
+Eager: maintain a dependents[base_key] -> set[dependent_key] reverse index; on set_value recompute the topological order over the affected subgraph and update cached values. Reads are O(1), writes are O(subgraph).
+Lazy: store only the formula on set_sum; resolve on read by recursive expansion with memoization invalidated on set_value. Reads are O(formula tree), writes are O(1).
+Watch the multiplicity rule: set_sum("D", ["C", "C", "A"]) is 2*C + A, not {C, A}.
+Detect cycles on set_sum — a sum key that transitively depends on itself is undefined. Reject with an error.
+Topological order is computed via Kahn's algorithm on the dependents subgraph.
+Edge cases: redefining a key with set_value after it was a sum key (clarify whether to wipe the formula), unknown reference in set_sum, deleting a key.
+Preparation
+Implement the eager version with explicit reverse-index propagation in 20 minutes.
+Layer a set_value micro-optimization: bail out early if the new value equals the old.
+Drill the lazy variant on paper; be ready to switch based on the follow-up's read / write skew.
+Pre-script the cycle-detection answer ("Kahn's algorithm on the proposed set_sum; reject if the graph has a back-edge") — this is the most common follow-up after the main implementation.
+
+ */
+
+
 public class KeyValue implements KV {
 
     private static final int CALCULATE_AT_SAVE = 1;
