@@ -29,4 +29,18 @@ Pair-prep with implement-retryer — both are OOD-flavored prompts where the des
  */
 public class DataBase {
 
+    private final Engine engine = new Engine();
+
+    public void createTable(String name, java.util.List<String> columnDefs) {
+        engine.createTable(name, columnDefs);
+    }
+
+    public void insert(String tableName, java.util.Map<String, Object> row) {
+        engine.insert(tableName, row);
+    }
+
+    public java.util.List<java.util.Map<String, Object>> select(
+            String tableName, java.util.List<String> columns, Predicate where) {
+        return engine.select(tableName, columns, where);
+    }
 }

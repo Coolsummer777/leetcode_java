@@ -90,12 +90,22 @@ public class LinkedListIntersection {
         ListNode slow = head;
         ListNode fast = head.next;
         while (fast != null){
-            if (slow == fast) return slow;
+            if (slow == fast) break;
             slow = slow.next;
             fast = fast.next;
             if (fast != null) fast = fast.next;
         }
-        return null;
+
+        if (fast == null) {
+            return null;
+        }
+
+        slow = head;
+        while (slow != fast){
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return slow;
     }
 
     public int getLength(ListNode head) {

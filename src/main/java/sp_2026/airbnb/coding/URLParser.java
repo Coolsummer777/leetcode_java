@@ -1,5 +1,7 @@
 package sp_2026.airbnb.coding;
 
+
+import java.util.*;
 /**
  * 
 
@@ -35,5 +37,82 @@ Pair-prep with text-justification-table — both fit the same fast phone-screen 
 
  */
 public class URLParser {
+
+    public static Map<String, List<String>> parseURL(String url) {
+        Map<String, List<String>> res = new HashMap<>();
+
+        if (url == null || url.isEmpty()) {
+            return res;
+        }
+
+        if (!url.startsWith("?")){
+            return res;
+        }
+
+        if (url.contains("#")) {
+            url = url.split("#", 2)[0];
+        }
+
+
+        String[] parts = url.substring(1).split("&");
+        for (String part : parts) {
+            if (part.isBlank()){
+                continue;
+            }
+
+            if (part.contains("=")) {
+                String[] kv = part.split("=", 2);
+                String key = unquote(kv[0]);
+                String value = unquote(kv[1]);
+                res.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+            } else {
+                String key = unquote(part);
+                res.computeIfAbsent(key, k -> new ArrayList<>()).add("True");
+            }
+        }
+
+
+        return res;
+    }
+
+    /** Scan for {@code %XX} and replace; {@code +} -> space. Enough for ASCII encodings in this problem. */
+    public static String unquote(String s) {
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '+') {
+                out.append(' ');
+            } else if (c == '%' && i + 2 < s.length()) {
+                int hi = hexDigit(s.charAt(i + 1));
+                int lo = hexDigit(s.charAt(i + 2));
+                if (hi >= 0 && lo >= 0) {
+                    out.append((char) ((hi << 4) | lo));
+                    i += 2;
+                } else {
+                    out.append(c);
+                }
+            } else {
+                out.append(c);
+            }
+        }
+        return out.toString();
+    }
+
+    private static int hexDigit(char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return c - 'a' + 10;
+        }
+        if (c >= 'A' && c <= 'F') {
+            return c - 'A' + 10;
+        }
+        return -1;
+    }
 
 }

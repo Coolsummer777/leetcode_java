@@ -136,15 +136,11 @@ public final class ReviewLabeler {
                 }
 
                 if (!advanced && node.spaceChild != null && Character.isWhitespace(c)) {
-                    int k = j;
-                    while (k < review.length() && Character.isWhitespace(review.charAt(k))) {
-                        k++;
+                    while (j < review.length() && Character.isWhitespace(review.charAt(j))) {
+                        j++;
                     }
-                    if (k > j) {
-                        node = node.spaceChild;
-                        j = k;
-                        advanced = true;
-                    }
+                    node = node.spaceChild;
+                    advanced = true;
                 }
 
                 if (!advanced) {

@@ -1,6 +1,9 @@
 package sp_2026.airbnb.coding;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
 
@@ -27,5 +30,65 @@ Drill articulating "why greedy fails on profit-weighted intervals" in one senten
 
 
 public class JobScheduling {
+
+    public int maxProfitUsingTimeBucket(List<Job> jobs) {
+
+        int maxEnd = 0;
+        for (Job job : jobs) {
+            maxEnd = Math.max(maxEnd, job.end);
+        }
+
+        List<List<Job>> timeBucket = new ArrayList<>();
+        for (int i = 0; i <= maxEnd; i++) {
+            timeBucket.add(new ArrayList<>());
+        }
+
+        for (Job job : jobs) {
+            timeBucket.get(job.end).add(job);
+        }
+
+        int[] dp = new int[maxEnd + 1];
+        for (int i = 1; i <= maxEnd; i++) {
+            dp[i] = dp[i - 1];
+            for (Job job : timeBucket.get(i)) {
+                dp[i] = Math.max(dp[i], dp[job.start] + job.profit);
+            }
+        }
+
+        return dp[maxEnd];
+    }
+
+
+    public int maxProfit(List<Job> jobs) {
+        jobs.sort((a, b) -> a.end - b.end);
+        int[] dp = new int[jobs.size() + 1];
+        dp[0] = 0;
+
+        for (int i = 1; i <= jobs.size(); i++) {
+            int j = binarySearch(jobs, jobs.get(i - 1).start, 0, i - 2);
+            dp[i] = Math.max(dp[i - 1], dp[j+1] + jobs.get(i - 1).profit);
+        }
+
+        return dp[jobs.size()];
+    }
+
+    public int binarySearch(List<Job> jobs, int target,int left,int right) {
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (jobs.get(mid).end <= target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return left - 1;
+    }
+
+
+    class Job {
+        int start;
+        int end;
+        int profit;
+    }
 
 }

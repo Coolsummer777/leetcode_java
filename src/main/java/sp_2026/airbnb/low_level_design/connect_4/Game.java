@@ -1,9 +1,9 @@
 package sp_2026.airbnb.low_level_design.connect_4;
 
+import java.util.ArrayDeque;
 
 /**
- * 
- 
+ *
 Connect-4-Style Board Game
 Implement the rules of a two-player drop-disc board game (Connect-4 family but not necessarily the standard variant). Players alternate, discs fall to the lowest empty slot in a column, win condition is `K` in a row in any of 8 directions.
 
@@ -26,7 +26,64 @@ Pre-script the "what if we wanted to add AI" answer: minimax with alpha-beta on 
 
 
  */
-
 public class Game {
 
+    private final Board board;
+    private final ArrayDeque<Move> moveHistory;
+    private Player currentPlayer;
+    private GameState state;
+
+    public Game(int rows, int cols, int winLength) {
+        this.board = new Board(rows, cols, winLength);
+        this.moveHistory = new ArrayDeque<>();
+        this.currentPlayer = Player.X;
+        this.state = GameState.IN_PROGRESS;
+    }
+
+    public GameState state() {
+        return state;
+    }
+
+    public Player currentPlayer() {
+        return currentPlayer;
+    }
+
+    public Board board() {
+        return board;
+    }
+
+    public void makeMove(Player player, int column) {
+        if (state != GameState.IN_PROGRESS) {
+            throw new IllegalStateException("Game is over: " + state);
+        }
+        if (player != currentPlayer) {
+            throw new IllegalArgumentException("Not " + player + "'s turn");
+        }
+
+        int row = board.drop(column, player);
+        moveHistory.push(new Move(row, column, player));
+
+        if (board.winningRunThrough(row, column, player) >= board.winLength()) {
+            state = player == Player.X ? GameState.PLAYER_X_WINS : GameState.PLAYER_O_WINS;
+            return;
+        }
+
+        if (board.isFull()) {
+            state = GameState.DRAW;
+            return;
+        }
+
+        currentPlayer = player.opponent();
+    }
+
+    public void undo() {
+        if (moveHistory.isEmpty()) {
+            throw new IllegalStateException("No moves to undo");
+        }
+
+        Move last = moveHistory.pop();
+        board.clear(last.row(), last.column());
+        currentPlayer = last.player();
+        state = GameState.IN_PROGRESS;
+    }
 }

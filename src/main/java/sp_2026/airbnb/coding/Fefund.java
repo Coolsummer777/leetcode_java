@@ -1,5 +1,7 @@
 package sp_2026.airbnb.coding;
 
+
+import java.util.*;
 /**
  * 
 Refund Waterfall Across Payment Methods
@@ -44,5 +46,78 @@ Pair-prep with banking-transactions-class — both surface in the same family of
 
  */
 public class Fefund {
+    
+    public List<RefundRecord> refund(List<Payment> payments, List<RefundRecord> refundRecords, int refundAmount) {
+        List<RefundRecord> res = new ArrayList<>();
+
+        Map<String,List<Payment>> paymentMap = new HashMap<>();
+        Map<Integer, Payment> paymentIdMap = new HashMap<>();
+        for (Payment payment : payments) {
+            List<Payment> list = paymentMap.computeIfAbsent(payment.method, k -> new ArrayList<>());
+            list.add(payment);
+            paymentIdMap.put(payment.paymentId, payment);
+        }
+
+        for (RefundRecord record : refundRecords){
+            Payment payment = paymentIdMap.getOrDefault(record.paymentId,null);
+            if (payment != null) {
+                payment.amount -= record.amount;
+            }
+        }
+
+        int counter = 0;
+
+        String[] methodPriority = new String[]{"CREDIT", "CREDIT_CARD", "PAYPAL"};
+        for (String method : methodPriority) {
+            List<Payment> list = paymentMap.getOrDefault(method, new ArrayList<>());
+            list.sort((a, b) -> b.date.compareTo(a.date));
+            for (Payment payment : list) {
+                if (payment.amount <= 0) {
+                    continue;
+                }
+
+                int canRefund = Math.min(refundAmount, payment.amount);
+                if (canRefund > 0) {
+                    res.add(new RefundRecord(String.valueOf((char)('a' + counter)), 
+                    payment.paymentId, canRefund, payment.method));
+                    counter++;
+                    refundAmount -= canRefund;
+                }
+
+                if(refundAmount <= 0) {
+                    break;
+                }
+            }
+
+            if(refundAmount <= 0) {
+                break;
+            }
+        }
+
+
+        return res;
+    }
+
+
+    class Payment {
+        int paymentId;
+        String method;
+        String date;
+        int amount;
+    }
+
+    class RefundRecord {
+        String refundId;
+        int paymentId;
+        int amount;
+        String method;
+
+        public RefundRecord(String refundId, int paymentId, int amount, String method) {
+            this.refundId = refundId;
+            this.paymentId = paymentId;
+            this.amount = amount;
+            this.method = method;
+        }
+    }
 
 }

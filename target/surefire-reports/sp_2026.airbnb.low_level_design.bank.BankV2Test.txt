@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: sp_2026.airbnb.low_level_design.bank.BankV2Test
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s -- in sp_2026.airbnb.low_level_design.bank.BankV2Test

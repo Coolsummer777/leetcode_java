@@ -32,4 +32,97 @@ Prepare for the follow-up "what about the next permutation given the same digits
  */
 public class SmallestPermuation {
 
+    public static void handle(){
+        String n = "00178";
+        String lowerBound = "9";
+        System.out.println(n + ":" + lowerBound +"->"+smallestPermuation(n, lowerBound));
+    }
+
+    public static String smallestPermuation(String n, String lowerBound){
+        StringBuilder sb = new StringBuilder();
+        if (lowerBound.length() > n.length()) return "-1";
+        if (lowerBound.length() < n.length()){
+            for(int i=0;i<n.length() - lowerBound.length();i++){
+                sb.append('0');
+            }
+            sb.append(lowerBound);
+            lowerBound = sb.toString();
+            sb.setLength(0);
+        }
+        int[] count = new int[10];
+        int[] count2 = new int[10];
+        for (int i=0;i<n.length();i++){
+            count[n.charAt(i) - '0']++;
+            count2[n.charAt(i) - '0']++;
+        }
+
+        String largest = getLargest(count);
+        if (largest.compareTo(lowerBound) < 0) return "-1";
+        if (largest.compareTo(lowerBound) == 0) return largest;
+
+        
+        for (int i=0;i<lowerBound.length();i++){
+            int c = lowerBound.charAt(i) - '0';
+            if (count[c] > 0){
+                count[c]--;
+                String subLargest = getLargest(count);
+                if (subLargest.compareTo(lowerBound.substring(i+1)) < 0){
+                    count[c]++;
+                }else{
+                    sb.append((char)(c + '0'));
+                    continue;
+                }
+            }
+
+            int next = c + 1;
+            while (next < 10 && count[next] == 0){
+                next++;
+            }
+            if (next == 10){
+                return "-1";
+            }
+            count[next]--;
+            sb.append((char)(next + '0'));
+            sb.append(getSmallest(count));
+            break;
+        }
+
+        if (sb.charAt(0) == '0') {
+            sb.setLength(0);
+            for (int i=1;i<10;i++){
+                if (count2[i] > 0){
+                    count2[i]--;
+                    sb.append((char)(i + '0'));
+                    sb.append(getSmallest(count2));
+                    break;
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static String getSmallest(int[] count){
+        StringBuilder sb = new StringBuilder();
+
+        for (int i=0;i<10;i++){
+            for (int j=0;j<count[i];j++){
+                sb.append((char)(i + '0'));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static String getLargest(int[] count){
+        StringBuilder sb = new StringBuilder();
+
+        for (int i=9;i>=0;i--){
+            for (int j=0;j<count[i];j++){
+                sb.append((char)(i + '0'));
+            }
+        }
+
+        return sb.toString();
+    }
 }

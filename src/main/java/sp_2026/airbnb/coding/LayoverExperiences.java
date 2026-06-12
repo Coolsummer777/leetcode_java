@@ -1,5 +1,7 @@
 package sp_2026.airbnb.coding;
 
+
+import java.util.*;
 /**
  * 
 Layover Experiences — Exact-Fill with Min Count
@@ -33,5 +35,100 @@ Pair-prep with menu-min-cost-bitmask since both are DP-on-target problems often 
 
  */
 public class LayoverExperiences {
+    public int minExperiences(List<Float> experiences, float totalHours) {
+        int total = Math.round(totalHours * 10);
+        if (total == 0) {
+            return 0;
+        }
+        
 
+        Set<Integer> exp = new HashSet<>();
+        for (Float f : experiences) {
+            int e = Math.round(f * 10);
+            if (e == total) {
+                return 1;
+            }
+            if (e < total && e > 0) {
+                exp.add(e);
+            }
+        }
+
+        int[] dp = new int[total + 1];
+        Arrays.fill(dp, Integer.MAX_VALUE);
+        dp[0] = 0;
+        for (int t = 1; t <= total; t++) {
+            for (int e : exp) {
+                if (t >= e && dp[t - e] != Integer.MAX_VALUE) {
+                    dp[t] = Math.min(dp[t], dp[t - e] + 1);
+                }
+            }
+        }
+
+        return dp[total] == Integer.MAX_VALUE ? 0 : dp[total];
+    }
+
+    /**
+     * Returns indices of a minimum-size booking that sums to {@code totalHours} exactly,
+     * or an empty list if no such combination exists.
+     */
+    public List<Integer> minExperiencesV2(List<Float> experiences, float totalHours) {
+        int total = Math.round(totalHours * 10);
+        if (total == 0) {
+            return List.of();
+        }
+
+        int n = experiences.size();
+        int[] durations = new int[n];
+        Map<Integer, Integer> durToIdx = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            int e = Math.round(experiences.get(i) * 10);
+            durations[i] = e;
+            if (e == total) {
+                return List.of(i);
+            }
+            if (e < total && e > 0) {
+                durToIdx.merge(e, i, Math::min);
+            }
+        }
+
+        if (durToIdx.isEmpty()) {
+            return List.of();
+        }
+
+        int[] parent = new int[total + 1];
+        Arrays.fill(parent, -1);
+        parent[0] = 0;
+
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.offer(0);
+
+        while (!queue.isEmpty()) {
+            int sum = queue.poll();
+            for (var entry : durToIdx.entrySet()) {
+                int d = entry.getKey();
+                int idx = entry.getValue();
+                int next = sum + d;
+                if (next <= total && parent[next] == -1) {
+                    parent[next] = idx;
+                    if (next == total) {
+                        return reconstructPath(parent, durations, total);
+                    }
+                    queue.offer(next);
+                }
+            }
+        }
+
+        return List.of();
+    }
+
+    private List<Integer> reconstructPath(int[] parent, int[] durations, int total) {
+        LinkedList<Integer> indices = new LinkedList<>();
+        int cur = total;
+        while (cur > 0) {
+            int idx = parent[cur];
+            indices.addFirst(idx);
+            cur -= durations[idx];
+        }
+        return indices;
+    }
 }

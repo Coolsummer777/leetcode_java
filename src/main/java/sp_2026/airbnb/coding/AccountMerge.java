@@ -1,5 +1,11 @@
 package sp_2026.airbnb.coding;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -37,5 +43,52 @@ Practice describing the time / space complexity in terms of record count N and a
 
  */
 public class AccountMerge {
+
+    public static List<Integer> userDeduplication(List<List<String>> records) {
+
+        List<Integer> res = new ArrayList<>();
+
+        Map<String, Set<String>> infoMap = new HashMap<>();
+
+        for (int i = 0; i < records.size(); i++) {
+            List<String> record = records.get(i);
+            if (!checkClash(infoMap, record)) {
+                res.add(i);
+                continue;
+            }
+            addAttribute(infoMap, record);
+        }
+
+        return res;
+
+    }
+
+    public static boolean checkClash(Map<String, Set<String>> infoMap, List<String> record) {
+        for (String s : record) {
+            String[] info = s.split(":", 2);
+            String key = info[0].trim();
+            String value = info[1].trim();
+
+            Set<String> vSet = infoMap.computeIfAbsent(key, k -> new HashSet<>());
+            if (vSet.contains(value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static void addAttribute(Map<String, Set<String>> infoMap, List<String> record) {
+        for (String s : record) {
+            String[] info = s.split(":", 2);
+            String key = info[0].trim();
+            String value = info[1].trim();
+
+            Set<String> vSet = infoMap.computeIfAbsent(key, k -> new HashSet<>());
+            vSet.add(value);
+            infoMap.put(key, vSet);
+        }
+    }
+    
 
 }
